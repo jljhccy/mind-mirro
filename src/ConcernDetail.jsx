@@ -1,5 +1,5 @@
 import { useLiveQuery } from 'dexie-react-hooks'
-import { db, resolveConcern } from './db.js'
+import { db, resolveConcern, restoreConcern, CATEGORY_LABEL } from './db.js'
 import { formatDate, formatTime } from './utils.js'
 
 export default function ConcernDetail({ concernId, onBack }) {
@@ -26,14 +26,18 @@ export default function ConcernDetail({ concernId, onBack }) {
         </button>
         <div className="detail-title">
           <div className="detail-name">{concern.name}</div>
-          <div className="detail-count">共 {thoughts.length} 次</div>
+          <div className="detail-count">
+            {CATEGORY_LABEL[concern.category || 'long']} · 共 {thoughts.length} 次
+          </div>
         </div>
         {concern.status === 'active' ? (
           <button className="letgo-btn" onClick={letGo}>
             放下
           </button>
         ) : (
-          <span className="resolved-tag">已了却</span>
+          <button className="letgo-btn" onClick={() => restoreConcern(concernId)}>
+            恢复
+          </button>
         )}
       </header>
 

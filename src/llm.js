@@ -4,19 +4,28 @@
 function buildPrompt(text, concerns) {
   const list =
     concerns.length > 0
-      ? concerns.map((c) => `- id=${c.id}  名称:${c.name}`).join('\n')
+      ? concerns
+          .map((c) => `- id=${c.id}  名称:${c.name}  分类:${c.category || 'long'}`)
+          .join('\n')
       : '(当前没有任何活跃心事)'
 
   const system = `你是一个帮助用户整理内心念头的助手。用户会记录一条转瞬即逝的念头,你要判断它属于哪一件"心事"。
-心事是用户反复挂念的同一件事(如"转行的事""和母亲的关系""身体健康")。
+心事是用户反复挂念的同一件事(如"减肥""学英语""转行的事")。
+每个心事都属于一个一级分类,只能是这三个之一:
+- long(长期任务):需要长期坚持或反复挂念的事,如减肥、运动、学英语、健康、存钱、人际关系
+- short(短期任务):近期要做完的具体事,如本周作业、待回消息、要买的东西
+- flash(瞬时灵感):一闪而过的想法、点子、灵感
+
 规则:
 1. 如果这条念头在语义上属于下面某个已有心事,返回该心事的 id。
-2. 如果都不属于,新建一个心事,用简短中文名概括(4-10字,名词短语,不要标点)。
-3. 只能二选一:归入已有,或新建。
+2. 如果都不属于,新建一个心事,用简短中文名概括(2-8字,名词短语,不要标点),并给出它的分类。
+3. 优先复用这些常用标签名(如果语义吻合):减肥、运动、学英语、学专业课、身体健康、存钱、转行的事、和家人的关系、本周作业、待回消息、要买的东西、写作灵感、想做的项目
+4. 只能二选一:归入已有,或新建。
+
 你必须只输出一个 JSON 对象,不要有任何多余文字、解释或代码块标记。
-JSON 格式严格为:{"concern_id": <已有心事id或null>, "new_concern_name": <新心事名字符串或null>}
-归入已有时:concern_id 为该 id,new_concern_name 为 null。
-新建时:concern_id 为 null,new_concern_name 为名称。`
+JSON 格式严格为:{"concern_id": <已有心事id或null>, "new_concern_name": <新心事名字符串或null>, "category": "long"|"short"|"flash"}
+归入已有时:concern_id 为该 id,new_concern_name 为 null,category 仍然给出你的判断。
+新建时:concern_id 为 null,new_concern_name 为名称,category 为其分类。`
 
   const user = `已有活跃心事列表:
 ${list}
@@ -52,7 +61,8 @@ function parseLoose(content) {
     new_concern_name:
       typeof obj.new_concern_name === 'string' && obj.new_concern_name.trim()
         ? obj.new_concern_name.trim()
-        : null
+        : null,
+    category: typeof obj.category === 'string' ? obj.category.trim() : null
   }
 }
 

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { getConfig, setSetting, exportData, importData } from './db.js'
+import { getConfig, setSetting, exportData, importData, storageStatus } from './db.js'
 
 export default function Settings({ onBack }) {
   const [apiBase, setApiBase] = useState('')
@@ -7,6 +7,7 @@ export default function Settings({ onBack }) {
   const [model, setModel] = useState('')
   const [saved, setSaved] = useState(false)
   const [msg, setMsg] = useState('')
+  const [store, setStore] = useState(null)
   const fileRef = useRef(null)
 
   useEffect(() => {
@@ -15,6 +16,7 @@ export default function Settings({ onBack }) {
       setApiKey(c.apiKey)
       setModel(c.model)
     })
+    storageStatus().then(setStore)
   }, [])
 
   async function save() {
@@ -71,7 +73,34 @@ export default function Settings({ onBack }) {
 
       <div className="settings-body">
         <div className="settings-group">
-          <label className="settings-label">API 地址</label>
+          <div className="settings-label">存储状态</div>
+          <div className={`storage-badge ${store?.persisted ? 'ok' : 'warn'}`}>
+            {store == null
+              ? '检测中…'
+              : store.persisted
+                ? '✓ 已获得持久化授权,数据不会被系统自动清除'
+                : '⚠ 未获得持久化授权,数据可能被系统清除'}
+          </div>
+          {store && !store.persisted && (
+            <div className="settings-hint">
+              请把本应用「添加到主屏幕」并从主屏图标打开,不要用无痕模式。之后重开一次即可获得授权。
+            </div>
+          )}
+          {store?.usageMB && (
+            <div className="settings-hint">
+              已用 {store.usageMB} MB{store.quotaMB ? ` / 可用约 ${store.quotaMB} MB` : ''}
+            </div>
+          )}
+          <div className="settings-hint">重要数据请定期用下方「导出备份」保存一份。</div>
+        </div>
+
+        <div className="settings-group">
+          <div className="settings-label">自动归类</div>
+          <div className="settings-hint" style={{ marginBottom: 4 }}>
+            默认使用内置的本地规则自动归类,<b>无需填写下面的 API</b>。填了 API 则优先用 AI
+            归类,失败时自动退回本地规则。
+          </div>
+          <label className="settings-label">API 地址(可选)</label>
           <input
             className="settings-input"
             value={apiBase}
@@ -80,7 +109,7 @@ export default function Settings({ onBack }) {
           />
           <div className="settings-hint">OpenAI 兼容接口,填到 /v1 即可</div>
 
-          <label className="settings-label">API Key</label>
+          <label className="settings-label">API Key(可选)</label>
           <input
             className="settings-input"
             type="password"
