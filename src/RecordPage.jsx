@@ -42,6 +42,7 @@ export default function RecordPage() {
         记下
       </button>
       <div className={`record-flash ${flash ? 'show' : ''}`}>已记下 ✓</div>
+      <div className="build-stamp">{__BUILD_TIME__}</div>
     </div>
   )
 }

@@ -120,7 +120,11 @@ export default function Settings({ onBack }) {
           {msg && <div className="settings-hint">{msg}</div>}
         </div>
 
-        <div className="settings-footer">数据全部保存在本机浏览器中。</div>
+        <div className="settings-footer">
+          数据全部保存在本机浏览器中。
+          <br />
+          版本 {__BUILD_TIME__}
+        </div>
       </div>
     </div>
   )

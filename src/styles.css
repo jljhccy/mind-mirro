@@ -133,6 +133,16 @@ body {
   transform: translateX(-50%) translateY(0);
 }
 
+/* 版本号:极淡,不干扰记录 */
+.build-stamp {
+  text-align: center;
+  font-size: 11px;
+  color: #d0cdc6;
+  padding-top: 10px;
+  letter-spacing: 0.3px;
+  user-select: none;
+}
+
 /* ---------- 回顾页 ---------- */
 .review-page {
   padding: 0 0 calc(24px + env(safe-area-inset-bottom));

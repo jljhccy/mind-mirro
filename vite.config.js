@@ -2,7 +2,16 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 
+// 构建时间(北京时间),注入到页面用于确认手机上跑的是哪一版
+const buildStamp = new Date(Date.now() + 8 * 3600 * 1000)
+  .toISOString()
+  .slice(0, 16)
+  .replace('T', ' ')
+
 export default defineConfig({
+  define: {
+    __BUILD_TIME__: JSON.stringify(buildStamp)
+  },
   plugins: [
     react(),
     VitePWA({
